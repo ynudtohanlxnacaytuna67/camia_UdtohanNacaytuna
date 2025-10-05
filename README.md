@@ -3,6 +3,11 @@
 ## Project Description: 
 This is a simple Python project that helps you to accurately and precisely track your finances, such as your current balance as well as your transactions, among other things.
 
+## Project Draft:
+Finance Tracker and Management
+
+People, including me, sometimes find it hard to manually and accurately track and manage their finances, leading to poor financial decisions such as overbudgeting. A finance tracker and manager is required to record transactions, monitor your money and to make better and more responsible financial decisions
+
 ## Features:
 - Account verification to fully secure and differentiate your statistics from each other (work in progress).
 - Tracks overall finances.
@@ -16,6 +21,9 @@ This is a simple Python project that helps you to accurately and precisely track
 3. Open the terminal or command prompt.
 4. Run the program via F5 / clicking run.
 5. Follow the program's instructions to accurately track your finances.
+
+## Flowchart
+[Financial_Tracker Flowchart_NacaytunaUdtohan.pdf](https://github.com/user-attachments/files/22709572/Financial_Tracker.Flowchart_NacaytunaUdtohan.pdf)
 
 ## Example output
 Enter account username: Lionel
@@ -155,7 +163,7 @@ Enter the service you want to avail.
 > 6
 
 ## Contributors
-Student 1: Liam Nacaytuna (account verification)
+Student 1: Liam Nacaytuna (flowchart, account verification)
 Student 2: Yohann Udtohan (menu, user interface, financial tracker)
 
 
