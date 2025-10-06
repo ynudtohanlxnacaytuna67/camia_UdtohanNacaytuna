@@ -1,4 +1,4 @@
-# Financial Tracker
+# Pitaka+: A Financial Tracker App
 
 ## Project Description: 
 This is a simple Python project that helps you to accurately and precisely track your finances, such as your current balance as well as your transactions, among other things.
