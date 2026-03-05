@@ -7,7 +7,7 @@ This is a simple Python project that helps you to accurately and precisely track
 - Account verification to fully secure and differentiate your statistics from each other (work in progress).
 - Tracks overall finances.
 - Option to check your current balance in either your checking or savings account.
-- Able to process and record transactions, also updating your balance, depending on which account you attach the transaction to, as well as the nature of your transaction, if it is a income or expense.Di
+- Able to process and record transactions, also updating your balance, depending on which account you attach the transaction to, as well as the nature of your transaction, if it is a income or expense.
 - Useful tools such as a budget calculator, as well as a currency converter that converts into the 10 most used currencies in the Philippines by tourists.
 
 ## How to run the program
@@ -155,9 +155,9 @@ Enter the service you want to avail.
 > 6
 
 ## Contributors
-Student 1: Liam Nacaytuna (account verification, testing)
+Student 1: Liam Nacaytuna (account verification, testing, github organization)
 Student 2: Yohann Udtohan (menu, user interface)
-
+Student 3: Lionel(Contributed to creation of code)
 
 
 
