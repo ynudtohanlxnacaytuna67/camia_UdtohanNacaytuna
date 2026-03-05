@@ -154,6 +154,10 @@ Enter the service you want to avail.
 
 > 6
 
+## Current Progress
+Finished partial code of program but still needs some improvements and debugging
+Currently working on possible front-end and back-end framwork for program
+
 ## Contributors
 Student 1: Liam Nacaytuna (account verification, testing, github organization)
 Student 2: Yohann Udtohan (menu, user interface)
