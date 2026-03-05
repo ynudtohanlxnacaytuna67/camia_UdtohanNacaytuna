@@ -154,9 +154,16 @@ Enter the service you want to avail.
 
 > 6
 
+## Current Installation Process
+1. Install Python(latest version recommended).
+2. Download the file 'finance_tracker.py' via a file we will include here in github.
+3. Open the terminal or command prompt of python.
+4. Input the finance tracker file or code then run the program via F5 / clicking run.
+   
 ## Current Progress
-Finished partial code of program but still needs some improvements and debugging
-Currently working on possible front-end and back-end framwork for program
+-Finished partial code of program but still needs some improvements and debugging
+-Currently working on possible front-end and back-end framwork for program
+-Working on a proper installation process
 
 ## Contributors
 Student 1: Liam Nacaytuna (account verification, testing, github organization)
