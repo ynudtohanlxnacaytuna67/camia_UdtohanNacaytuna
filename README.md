@@ -161,9 +161,9 @@ Enter the service you want to avail.
 4. Input the finance tracker file or code then run the program via F5 / clicking run.
    
 ## Current Progress
-1.Finished partial code of program but still needs some improvements and debugging
-2.Currently working on possible front-end and back-end framwork for program
-3.Working on a proper installation process
+1.Finished partial code and we are currently improving and debugging it
+2.Finding a good front-end and back-end framework for program
+3.Working on a better installation process
 
 ## Contributors
 Student 1: Liam Nacaytuna (account verification, testing, github organization)
