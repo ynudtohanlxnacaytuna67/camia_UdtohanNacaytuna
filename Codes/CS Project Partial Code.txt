@@ -1,0 +1,251 @@
+from datetime import datetime
+import os
+
+# This file stores usernames and passwords
+file_name = "usersinformation.txt"
+
+# If the file does not exist yet, create it so the program won't crash
+if not os.path.exists(file_name):
+    open(file_name, "w").close()
+
+# ---------------- LOGIN SYSTEM ----------------
+
+# This loop keeps asking for a username until a valid one is found
+while True:
+    username = input("Enter account username:\n")
+
+    found = False
+    password_saved = ""
+
+    # Open the file containing stored usernames and passwords
+    with open(file_name, "r") as file:
+        for line in file:
+            # Each line contains username,password
+            data = line.strip().split(",")
+
+            # If the entered username matches one in the file
+            if data[0] == username:
+                found = True
+                password_saved = data[1]
+                break
+
+    # If the username is not found, ask again
+    if not found:
+        print("This username does not exist. Please try again.\n")
+    else:
+        break
+
+# This loop keeps asking for the password until it is correct
+while True:
+    password = input("Enter password:\n")
+
+    if password == password_saved:
+        print("Login successful!\n")
+        break
+    else:
+        print("Incorrect password. Please try again.\n")
+
+
+# ---------------- SESSION DATA ----------------
+
+# These dictionaries store account balances
+balance = {
+    "checking": 0.0,
+    "savings": 0.0
+}
+
+# This list stores all transactions done during the session
+transactions = []
+
+
+# ---------------- SERVICE MENU ----------------
+
+# Main program loop
+while True:
+
+    # Display the list of available services
+    print("\nEnter the number of the thing you want to do:")
+    print("1. Check Balance")
+    print("2. Transaction Station")
+    print("3. Transaction Archive")
+    print("4. Budget Calculator")
+    print("5. Currency Converter")
+    print("6. Exit Program")
+
+    # Try to convert the input into an integer
+    try:
+        service_num = int(input("Select option (1-6): "))
+    except ValueError:
+        print("Please enter a valid number.\n")
+        continue
+
+
+    # ---------------- CHECK BALANCE ----------------
+    if service_num == 1:
+
+        print("\nYou chose Check Balance.")
+
+        # Loop through both accounts and display their balances
+        for acc, bal in balance.items():
+            print(f"{acc.title()} Account Balance: PHP {bal:.2f}")
+
+        print()
+
+
+    # ---------------- TRANSACTION STATION ----------------
+    elif service_num == 2:
+
+        print("\nYou chose Transaction Station.")
+
+        # Ask user to enter transaction date
+        date_str = input("Enter transaction date (YYYY-MM-DD): ")
+
+        # Convert string into an actual date
+        try:
+            date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            print("Invalid date format.\n")
+            continue
+
+
+        # Ask which account will be used
+        account_type = input("Enter account type (checking/savings): ").lower()
+
+        # Validate account type
+        if account_type not in balance:
+            print("Invalid account type.\n")
+            continue
+
+
+        # Ask if the transaction is income or expense
+        trans_type = input("Enter transaction type (income/expense): ").lower()
+
+        if trans_type not in ["income", "expense"]:
+            print("Invalid transaction type.\n")
+            continue
+
+
+        # Ask for transaction amount
+        try:
+            amount = float(input("Enter amount in PHP: "))
+
+            if amount <= 0:
+                print("Amount must be positive.\n")
+                continue
+
+        except ValueError:
+            print("Invalid amount.\n")
+            continue
+
+
+        # Prevent spending more money than the account has
+        if trans_type == "expense" and amount > balance[account_type]:
+            print("Insufficient funds.\n")
+            continue
+
+
+        # Ask for description of transaction
+        description = input("Enter a brief description of the transaction: ")
+
+        # Optional proof (like receipt name or file path)
+        proof = input("Optional: Enter proof (leave blank if none): ")
+
+
+        # Update the account balance
+        if trans_type == "income":
+            balance[account_type] += amount
+        else:
+            balance[account_type] -= amount
+
+
+        # Save transaction data inside the list
+        transactions.append({
+            "date": date,
+            "account": account_type,
+            "type": trans_type,
+            "amount": amount,
+            "description": description,
+            "proof": proof
+        })
+
+        print(f"Transaction successful! New balance: PHP {balance[account_type]:.2f}\n")
+
+
+    # ---------------- TRANSACTION ARCHIVE ----------------
+    elif service_num == 3:
+
+        print("\nYou chose Transaction Archive.")
+
+        # If there are no transactions yet
+        if not transactions:
+            print("No transactions recorded.\n")
+
+        else:
+
+            # Sort transactions by date
+            transactions_sorted = sorted(transactions, key=lambda x: x["date"])
+
+            print("\nTransaction History:")
+
+            # Display detailed information about each transaction
+            for t in transactions_sorted:
+                print(f"Date: {t['date']}")
+                print(f"Account: {t['account']}")
+                print(f"Type: {t['type']}")
+                print(f"Amount: PHP {t['amount']:.2f}")
+                print(f"Description: {t['description']}")
+
+                if t["proof"] != "":
+                    print(f"Proof: {t['proof']}")
+
+                print("------------------------")
+
+            print()
+
+
+    # ---------------- BUDGET CALCULATOR ----------------
+    elif service_num == 4:
+
+        print("\nBudget Calculator")
+
+        try:
+            income = float(input("Enter total income: "))
+            expense = float(input("Enter total expenses: "))
+
+        except ValueError:
+            print("Invalid input.\n")
+            continue
+
+        remaining = income - expense
+
+        print(f"Remaining budget: PHP {remaining:.2f}\n")
+
+
+    # ---------------- CURRENCY CONVERTER ----------------
+    elif service_num == 5:
+
+        print("\nCurrency Converter")
+
+        try:
+            pesos = float(input("Enter amount in PHP: "))
+            rate = float(input("Enter PHP to USD exchange rate: "))
+
+        except ValueError:
+            print("Invalid input.\n")
+            continue
+
+        usd = pesos / rate
+
+        print(f"Converted amount: ${usd:.2f} USD\n")
+
+
+    # ---------------- EXIT PROGRAM ----------------
+    elif service_num == 6:
+
+        print("Thank you! Program ended.")
+        break
+
+
+    # If user enters an invalid menu number
+    else:
+        print("Invalid service number.\n")
