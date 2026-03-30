@@ -1,0 +1,219 @@
+from datetime import datetime
+import os
+import math
+
+# --- IDE-PROOF PATHS ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USER_FILE = os.path.join(BASE_DIR, "usersinformation.txt")
+TRANS_FILE = os.path.join(BASE_DIR, "transactions.txt")
+
+# Ensure files exist
+for f in [USER_FILE, TRANS_FILE]:
+    if not os.path.exists(f):
+        open(f, "w").close()
+
+# ---------------- DATA PERSISTENCE ----------------
+
+def load_users():
+    users = {}
+    if not os.path.exists(USER_FILE): return users
+    with open(USER_FILE, "r") as file:
+        for line in file:
+            parts = line.strip().split(",")
+            if len(parts) == 4:
+                users[parts[0].strip()] = {
+                    "password": parts[1].strip(),
+                    "checking": float(parts[2]),
+                    "savings": float(parts[3])
+                }
+    return users
+
+def save_all_users(users):
+    with open(USER_FILE, "w") as file:
+        for username, data in users.items():
+            file.write(f"{username},{data['password']},{data['checking']},{data['savings']}\n")
+
+def load_transactions(username):
+    user_trans = []
+    if not os.path.exists(TRANS_FILE): return user_trans
+    with open(TRANS_FILE, "r") as file:
+        for line in file:
+            parts = line.strip().split("|")
+            if len(parts) == 7 and parts[0] == username:
+                user_trans.append({
+                    "date": parts[1], "account": parts[2], "type": parts[3],
+                    "amount": float(parts[4]), "category": parts[5], "desc": parts[6]
+                })
+    return user_trans
+
+def save_transaction(username, date, account, t_type, amount, category, desc):
+    with open(TRANS_FILE, "a") as file:
+        file.write(f"{username}|{date}|{account}|{t_type}|{amount}|{category}|{desc}\n")
+
+# ---------------- AUTHENTICATION ----------------
+
+def register():
+    users = load_users()
+    print("\n--- REGISTER NEW ACCOUNT ---")
+    new_user = input("Choose Username: ").strip()
+    if not new_user or new_user in users:
+        print("Invalid or existing username!\n"); return
+    new_pass = input("Choose Password: ").strip()
+    with open(USER_FILE, "a") as file:
+        file.write(f"{new_user},{new_pass},0.0,0.0\n")
+    print("Registration successful!\n")
+
+def login():
+    while True:
+        users = load_users() 
+        username = input("\nUsername (or type 'back'): ").strip()
+        if username.lower() == "back": return "cancel", None
+        if username not in users:
+            print("User not found."); continue
+        while True:
+            password = input(f"Password for {username} (or type 'back'): ").strip()
+            if password.lower() == "back": break 
+            if password == users[username]["password"]:
+                print("Login Successful!")
+                return username, users[username]
+            else:
+                print("Incorrect password.")
+
+# ---------------- MAIN APP ----------------
+
+def main():
+    while True:
+        print("Welcome to the Bank App!")
+        print("1. Login\n2. Register")
+        start_choice = input("Select: ")
+        if start_choice == "1":
+            res = login()
+            if res[0] == "cancel": continue 
+            active_user, user_data = res
+            break 
+        elif start_choice == "2": register()
+        else: print("Invalid choice.")
+
+    balance = {"checking": user_data["checking"], "savings": user_data["savings"]}
+    transactions = load_transactions(active_user)
+    categories = ["food", "transport", "bills", "others"]
+
+    while True:
+        print(f"\n--- {active_user.upper()}'S MAIN MENU ---")
+        print("1. Check Balance")
+        print("2. Add Transaction")
+        print("3. View Transactions")
+        print("4. Balance/Goal Calculator")
+        print("5. Currency Converter")
+        print("6. Exit")
+        
+        try:
+            choice = int(input("Choose (1-6): "))
+        except: continue
+
+        # --- 1. BALANCE ENQUIRY ---
+        if choice == 1:
+            print("\n1. Checking Account | 2. Savings Account | 3. View Both")
+            bc = input("Select: ")
+            if bc == "1": print(f"Checking Balance: PHP {balance['checking']:.2f}")
+            elif bc == "2": print(f"Savings Balance: PHP {balance['savings']:.2f}")
+            elif bc == "3":
+                print(f"Checking: PHP {balance['checking']:.2f}")
+                print(f"Savings: PHP {balance['savings']:.2f}")
+                print(f"Total: PHP {balance['checking'] + balance['savings']:.2f}")
+
+        # --- 2. ADD TRANSACTION ---
+        elif choice == 2:
+            date = input("Date (YYYY-MM-DD) or Enter for today: ")
+            if not date: date = str(datetime.now().date())
+            acc = input("Account (checking/savings): ").lower()
+            if acc not in balance: print("Invalid account."); continue
+            t_type = input("Type (income/expense): ").lower()
+            try:
+                amt = float(input("Amount: "))
+            except: print("Invalid amount."); continue
+            
+            if t_type == "expense" and amt > balance[acc]:
+                print("Insufficient funds."); continue
+            
+            cat = input(f"Category {categories}: ").lower() if t_type == "expense" else "none"
+            if cat not in categories: cat = "others"
+            desc = input("Description: ")
+
+            if t_type == "income": balance[acc] += amt
+            else: balance[acc] -= amt
+
+            all_users = load_users()
+            all_users[active_user]["checking"] = balance["checking"]
+            all_users[active_user]["savings"] = balance["savings"]
+            save_all_users(all_users)
+            save_transaction(active_user, date, acc, t_type, amt, cat, desc)
+            
+            transactions.append({"date": date, "account": acc, "type": t_type, "amount": amt, "category": cat, "desc": desc})
+            print("Transaction saved successfully!")
+
+        # --- 3. VIEW HISTORY ---
+        elif choice == 3:
+            print("\n--- TRANSACTION HISTORY ---")
+            for t in sorted(transactions, key=lambda x: x['date'], reverse=True):
+                print(f"{t['date']} | {t['type'].upper()} | PHP {t['amount']:.2f} ({t['account']})")
+                print(f"Category: {t['category']} | Desc: {t['desc']}\n" + "-"*30)
+
+        # --- 4. GOAL CALCULATOR ---
+        elif choice == 4:
+            print("\n--- GOAL CALCULATOR ---")
+            try:
+                target = float(input("Target Balance (Goal): PHP "))
+                monthly_income = float(input("Estimated Monthly Income: PHP "))
+                monthly_expense = float(input("Estimated Monthly Expenses: PHP "))
+                monthly_savings = monthly_income - monthly_expense
+                
+                if monthly_savings <= 0:
+                    print("Error: Expenses exceed or equal income. Goal unreachable.")
+                else:
+                    months_needed = target / monthly_savings
+                    if months_needed < 1:
+                        print(f"Goal Reachable in: {math.ceil(months_needed * 30)} days")
+                    else:
+                        print(f"Goal Reachable in: {int(months_needed)} month(s) and {math.ceil((months_needed % 1) * 30)} day(s)")
+            except ValueError: print("Invalid input.")
+
+        # --- 5. TWO-WAY CURRENCY CONVERTER ---
+        elif choice == 5:
+            rates = {
+                "USD": 55.80, "EUR": 60.45, "JPY": 0.37, "GBP": 70.20,
+                "AUD": 36.50, "CAD": 41.10, "SGD": 41.60, "KRW": 0.042,
+                "CNY": 7.75,  "HKD": 7.15,  "QAR": 15.30
+            }
+            print("\n1. PHP to Foreign | 2. Foreign to PHP")
+            direction = input("Select direction: ")
+            print("\nAvailable Currencies:")
+            for i, curr in enumerate(rates.keys(), 1): print(f"{i}. {curr}")
+            
+            try:
+                curr_idx = int(input("\nSelect currency (1-11): ")) - 1
+                selected_curr = list(rates.keys())[curr_idx]
+                rate = rates[selected_curr]
+                
+                if direction == "1":
+                    amt = float(input("Amount in PHP: "))
+                    print(f"Result: {selected_curr} {amt / rate:,.2f}")
+                else:
+                    amt = float(input(f"Amount in {selected_curr}: "))
+                    print(f"Result: PHP {amt * rate:,.2f}")
+            except: print("Invalid selection.")
+
+        # --- 6. EXIT ---
+        elif choice == 6:
+            print(f"\nThank you for using the Bank App, {active_user}!")
+            print("-" * 60)
+            print("Made as a Computer Science project by:")
+            print("Liam Xander Nacaytuna, Lionel Marik Brillo, and Yohann Nilo Udtohan")
+            print("-" * 60)
+            pleasex67 = " ".join(["please"] * 67)
+            print(f"{pleasex67} 1.00 grade maam datch pleaseeeee")
+            break
+
+if __name__ == "__main__":
+    main()
+
